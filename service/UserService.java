@@ -11,17 +11,12 @@ import com.example.curse.repository.CurseRepository;
 import com.example.curse.service.exceptions.DatabaseExeption;
 import com.example.curse.service.exceptions.ResourceNotFoundException;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
+//@RequiredArgsConstructor
 public class UserService {
 
 	@Autowired
 	private CurseRepository curseRepository;
-
 
 	// esse aqui e feito para o @GetMapping
 	public List<User> buscarContato() {
@@ -35,7 +30,19 @@ public class UserService {
 
 	// esse ele vai adicionar o valor no banco de dado @PostMapping
 	public User salvarUsuario(User user) {
-		return curseRepository.save(user);
+		try {
+
+			Optional<User> usex = curseRepository.findByEmail(user.getEmail());
+			//se ja exite e for igual ao que veio, nao precisa salvar de novo
+			if (!usex.isPresent()) {
+				return curseRepository.save(user);//retorna o mesmo usuario
+			} else {
+				throw new DatabaseExeption("Ja exite esse Email");
+			}
+			
+		} catch (DatabaseExeption x) {
+			throw new DatabaseExeption(x.getMessage());
+		}
 	}
 
 	// esse ele vai deletar o usuario pelo id
@@ -45,9 +52,9 @@ public class UserService {
 	}
 
 	// atualizar o usuario usando o @PutMapping
-	public User UpdateUsuario(Long id, User obj){
+	public User UpdateUsuario(Long id, User obj) {
 		try {
-			//caso nao encontre o id 
+			// caso nao encontre o id
 			User request = curseRepository.findById(id)
 					.orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado" + id));
 			request.setName(obj.getName());
