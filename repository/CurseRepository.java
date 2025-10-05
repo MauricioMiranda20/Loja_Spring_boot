@@ -11,5 +11,6 @@ import com.example.curse.entities.User;
 public interface CurseRepository extends JpaRepository<User, Long> {
 
 //	User saveUser(String name, String email, String phone, String password);
-//	Optional<User> findbyName(String name);
+	Optional<User> findByName(String name);
 }
+
